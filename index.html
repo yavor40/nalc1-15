@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NALC Vol 1 Examination (50 Items)</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --border-color: #333333;
+            --success-color: #22c55e;
+            --error-color: #ef4444;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 720px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+        h1 {
+            font-size: 1.3rem;
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-badge {
+            background: #374151;
+            color: #93c5fd;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .progress {
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+        .question-box {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .option-btn {
+            background: #2a2a2a;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            text-align: left;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .option-btn:hover {
+            background: #333333;
+            border-color: var(--accent-color);
+        }
+        .option-btn.selected {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #ffffff;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn:hover {
+            background: var(--accent-hover);
+        }
+        .btn:disabled {
+            background: #4b5563;
+            cursor: not-allowed;
+        }
+        .audio-bar {
+            margin-bottom: 20px;
+            background: #252525;
+            padding: 10px 14px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .audio-btn {
+            background: #374151;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .audio-btn:hover {
+            background: #4b5563;
+        }
+        .results {
+            text-align: center;
+        }
+        .score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--success-color);
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <h1>
+        <span>NALC Vol 1 Examination (50 Items)</span>
+        <span class="section-badge" id="section-badge">Listening</span>
+        <span class="progress" id="progress-indicator">Item 1 of 50</span>
+    </h1>
+    
+    <div class="audio-bar" id="audio-container">
+        <button class="audio-btn" onclick="speakCurrentPrompt()">Play Audio Prompt</button>
+        <span id="audio-status" style="font-size: 0.85rem; color: #9ca3af;">Click to listen to spoken dialogue audio.</span>
+    </div>
+
+    <div class="question-box" id="question-text">Loading examination...</div>
+    
+    <div class="options" id="options-container"></div>
+    
+    <div class="controls">
+        <span id="feedback-text" style="font-weight: 500;"></span>
+        <button class="btn" id="next-btn" onclick="handleAction()" disabled>Next Item</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        // --- LISTENING SECTION (Items 1 - 25) ---
+        { type: "listening", q: "Listen to the statement: 'The trainees are entering the language laboratory.' Choose the correct response.", options: ["A) Yes, they are going inside now.", "B) No, they are leaving the building.", "C) They arrived yesterday.", "D) It is a large room."], correct: 0 },
+        { type: "listening", q: "Listen to the question: 'What time does the morning formation begin?' Choose the correct response.", options: ["A) At zero seven hundred hours.", "B) In the classroom.", "C) With the instructor.", "D) English grammar."], correct: 0 },
+        { type: "listening", q: "Listen to the dialogue: 'Where is Sergeant Miller?' - 'He is reviewing homework at his desk.' Where is Sergeant Miller?", options: ["A) At the mess hall", "B) At his workstation", "C) Outside on the parade field", "D) At the medical clinic"], correct: 1 },
+        { type: "listening", q: "Listen to the statement: 'Put your identification badges on your left pocket.' What should you do?", options: ["A) Put the badge in your notebook", "B) Wear the badge on your left pocket", "C) Leave the badge in your quarters", "D) Give the badge to the instructor"], correct: 1 },
+        { type: "listening", q: "Listen to the instruction: 'Open your books to page forty-five and look at exercise two.' What page should you open?", options: ["A) Page 15", "B) Page 40", "C) Page 45", "D) Page 54"], correct: 2 },
+        { type: "listening", q: "Listen to the question: 'How many students are assigned to this classroom?' Choose the correct response.", options: ["A) Twelve students", "B) Room number four", "C) At eight o'clock", "D) English level two"], correct: 0 },
+        { type: "listening", q: "Listen to the statement: 'The weather outside is cold and raining.' What should you take with you?", options: ["A) Sunglasses", "B) A raincoat or umbrella", "C) A swimsuit", "D) Short-sleeve shirt"], correct: 1 },
+        { type: "listening", q: "Listen to the question: 'When do we have our oral proficiency test?' Choose the correct response.", options: ["A) In the testing booth", "B) Next Thursday morning", "C) With a cassette recorder", "D) Hard vocabulary words"], correct: 1 },
+        { type: "listening", q: "Listen to the dialogue: 'Did you understand the listening comprehension exercise?' - 'Yes, it was quite clear.' Did the student understand?", options: ["A) No, it was too difficult", "B) Yes, it was clear", "C) They missed the recording", "D) They did not listen"], correct: 1 },
+        { type: "listening", q: "Listen to the command: 'Turn off all electronic devices before entering the testing room.' What must you do?", options: ["A) Leave phones on", "B) Turn devices off", "C) Charge batteries", "D) Answer phone calls"], correct: 1 },
+        { type: "listening", q: "Listen to the question: 'Whose notebook is this on the front desk?' Choose the correct response.", options: ["A) It belongs to Private Davis.", "B) It is writing a test.", "C) It is blue and black.", "D) It is on the floor."], correct: 0 },
+        { type: "listening", q: "Listen to the statement: 'The instructor spoke very clearly during the pronunciation drill.' How was the speech?", options: ["A) Hard to hear", "B) Easy to understand", "C) Too fast", "D) Inaudible"], correct: 1 },
+        { type: "listening", q: "Listen to the question: 'Which bus goes to the main military exchange?' Choose the correct response.", options: ["A) Bus number seven", "B) At noon today", "C) Five dollars fare", "D) Behind the barracks"], correct: 0 },
+        { type: "listening", q: "Listen to the dialogue: 'Are you ready for the vocabulary quiz?' - 'I studied all evening.' Is the trainee prepared?", options: ["A) No, they did not study", "B) Yes, they studied", "C) They were sleeping", "D) They arrived late"], correct: 1 },
+        { type: "listening", q: "Listen to the statement: 'Please submit your completed worksheets by fourteen hundred hours.' When is the deadline?", options: ["A) 2:00 PM", "B) 10:00 AM", "C) 4:00 PM", "D) 12:00 PM"], correct: 0 },
+        { type: "listening", q: "Listen to the question: 'How do you spell the word lieutenant?' Choose the correct response.", options: ["A) L-I-U-T-E-N-A-N-T", "B) L-I-E-U-T-E-N-A-N-T", "C) L-E-U-T-E-N-I-N-T", "D) L-I-T-E-N-A-N-T"], correct: 1 },
+        { type: "listening", q: "Listen to the statement: 'The dining facility opens for breakfast at zero six hundred.' When does it open?", options: ["A) 5:00 AM", "B) 6:00 AM", "C) 7:00 AM", "D) 8:00 AM"], correct: 1 },
+        { type: "listening", q: "Listen to the question: 'What is your current military rank?' Choose the correct response.", options: ["A) I am a Corporal.", "B) I am in the classroom.", "C) English language course.", "D) Next Monday."], correct: 0 },
+        { type: "listening", q: "Listen to the dialogue: 'Can I borrow your pen for a moment?' - 'Certainly, here you are.' What did the second speaker do?", options: ["A) Refused the request", "B) Provided the pen", "C) Asked a question", "D) Left the room"], correct: 1 },
+        { type: "listening", q: "Listen to the instruction: 'Form groups of three for the conversational roleplay.' How many students per group?", options: ["A) Two students", "B) Three students", "C) Four students", "D) Five students"], correct: 1 },
+        { type: "listening", q: "Listen to the question: 'Where did you put the training manuals?' Choose the correct response.", options: ["A) On the top shelf in the office", "B) Yesterday afternoon", "C) With three chapters", "D) Very carefully"], correct: 0 },
+        { type: "listening", q: "Listen to the statement: 'The audio recording was played twice for comprehension.' How many times was it played?", options: ["A) One time", "B) Two times", "C) Three times", "D) Four times"], correct: 1 },
+        { type: "listening", q: "Listen to the question: 'Why are you late for formation?' Choose the correct response.", options: ["A) My watch stopped working.", "B) In the hallway.", "C) At zero eight hundred.", "D) With my instructor."], correct: 0 },
+        { type: "listening", q: "Listen to the dialogue: 'Is the commander attending the briefing?' - 'Yes, he will be there at nine.' Is the commander attending?", options: ["A) No, he is absent", "B) Yes, he is attending", "C) He left the base", "D) He is on leave"], correct: 1 },
+        { type: "listening", q: "Listen to the statement: 'Review units one through fifteen thoroughly for the midterm exam.' What should you review?", options: ["A) Only unit one", "B) Units 1 to 15", "C) Final exam chapters", "D) Math formulas"], correct: 1 },
+
+        // --- READING SECTION (Items 26 - 50) ---
+        { type: "reading", q: "Choose the correct sentence using the verb 'to be' and personal pronouns (Units 1-3).", options: ["A) She are a student.", "B) She is a student.", "C) She am a student.", "D) She be a student."], correct: 1 },
+        { type: "reading", q: "Select the correct plural form of the noun: 'There are three ___ in the parking lot.' (Units 4-5)", options: ["A) bus", "B) busses", "C) buses", "D) busies"], correct: 2 },
+        { type: "reading", q: "Choose the correct demonstrative pronoun: '___ is my book here on the desk.' (Units 6-7)", options: ["A) This", "B) That", "C) These", "D) Those"], correct: 0 },
+        { type: "reading", q: "Identify the correct negative form: 'The instructor speaks English well.' (Units 8-9)", options: ["A) The instructor does speaks English well.", "B) The instructor do not speak English well.", "C) The instructor does not speak English well.", "D) The instructor not speak English well."], correct: 2 },
+        { type: "reading", q: "Choose the correct time expression question for: 'It is ten-thirty.' (Units 10-11)", options: ["A) What time is it?", "B) How many time is it?", "C) What is the time now hours?", "D) When is it ten-thirty?"], correct: 0 },
+        { type: "reading", q: "Select the correct present continuous sentence: (Units 12-13)", options: ["A) They studies vocabulary now.", "B) They are study vocabulary now.", "C) They are studying vocabulary now.", "D) They is studying vocabulary now."], correct: 2 },
+        { type: "reading", q: "Choose the appropriate preposition of place: 'The maps are hanging ___ the wall.' (Unit 14)", options: ["A) in", "B) on", "C) at", "D) under"], correct: 1 },
+        { type: "reading", q: "Select the correct modal verb of ability: 'He ___ speak two languages fluently.' (Unit 15)", options: ["A) can", "B) do", "C) does", "D) is"], correct: 0 },
+        { type: "reading", q: "Choose the correct possessive adjective for 'We': '___ classroom is clean.' (Units 1-5)", options: ["A) Their", "B) Your", "C) Our", "D) His"], correct: 2 },
+        { type: "reading", q: "Identify the correct past tense form: 'Yesterday, she ___ to the laboratory.' (Units 11-15)", options: ["A) go", "B) goed", "C) went", "D) gone"], correct: 2 },
+        { type: "reading", q: "Choose the correct article: 'He is ___ experienced military instructor.' (Units 1-3)", options: ["A) a", "B) an", "C) the", "D) [no article]"], correct: 1 },
+        { type: "reading", q: "Select the correct pronoun: 'Captain Davis gave the report to ___.' (Units 4-6)", options: ["A) he", "B) she", "C) him", "D) they"], correct: 2 },
+        { type: "reading", q: "Choose the correct question word: '___ does the language class start?' (Units 7-9)", options: ["A) Who", "B) What time", "C) Where", "D) Whose"], correct: 1 },
+        { type: "reading", q: "Identify the correct comparative adjective: 'This grammar exercise is ___ than the previous one.' (Units 10-12)", options: ["A) easy", "B) easier", "C) easiest", "D) more easy"], correct: 1 },
+        { type: "reading", q: "Select the correct future tense form: 'We ___ a progress test tomorrow morning.' (Units 13-15)", options: ["A) take", "B) took", "C) will take", "D) taking"], correct: 2 },
+        { type: "reading", q: "Choose the correct preposition of time: 'The course begins ___ Monday.' (Units 1-4)", options: ["A) in", "B) on", "C) at", "D) by"], correct: 1 },
+        { type: "reading", q: "Identify the correct plural noun: 'There are five ___ in the classroom.' (Units 5-7)", options: ["A) mans", "B) men", "C) man", "D) mens"], correct: 1 },
+        { type: "reading", q: "Choose the correct quantifier: 'We have ___ homework to complete tonight.' (Units 8-10)", options: ["A) many", "B) a lot of", "C) few", "D) several"], correct: 1 },
+        { type: "reading", q: "Select the correct adjective order: 'He drives ___ car.' (Units 11-13)", options: ["A) a red fast German", "B) a fast red German", "C) a German fast red", "D) red a fast German"], correct: 1 },
+        { type: "reading", q: "Choose the correct past continuous form: 'They ___ when the instructor entered.' (Units 12-15)", options: ["A) study", "B) studied", "C) were studying", "D) are studying"], correct: 2 },
+        { type: "reading", q: "Identify the correct conjunction: 'The trainees studied hard, ___ they passed the exam.' (Units 10-15)", options: ["A) but", "B) so", "C) because", "D) or"], correct: 1 },
+        { type: "reading", q: "Choose the correct wh-question for person: '___ is the new language instructor?' (Units 1-5)", options: ["A) What", "B) Where", "C) Who", "D) When"], correct: 2 },
+        { type: "reading", q: "Select the correct possessive noun: 'This is ___ classroom.' (Units 2-6)", options: ["A) the students", "B) the student's", "C) students", "D) student"], correct: 1 },
+        { type: "reading", q: "Choose the correct modal of obligation: 'Trainees ___ wear their badges at all times.' (Units 11-15)", options: ["A) must", "B) can", "C) may", "D) might"], correct: 0 },
+        { type: "reading", q: "Identify the correct superlative adjective: 'This is ___ lesson in the entire volume.' (Units 10-15)", options: ["A) difficult", "B) more difficult", "C) the most difficult", "D) most difficult"], correct: 2 }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedOption = null;
+    let answered = false;
+
+    function speakCurrentPrompt() {
+        const audioStatus = document.getElementById('audio-status');
+        try {
+            if (!('speechSynthesis' in window)) {
+                audioStatus.innerText = "Speech synthesis not supported.";
+                return;
+            }
+            window.speechSynthesis.cancel();
+            const q = quizData[currentQuestion];
+            const textToSpeak = q.type === "listening" ? q.q : "Reading Item. " + q.q;
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.rate = 0.95;
+            utterance.onstart = () => { audioStatus.innerText = "Speaking audio prompt..."; };
+            utterance.onend = () => { audioStatus.innerText = "Audio prompt complete."; };
+            utterance.onerror = () => { audioStatus.innerText = "Audio playback ready (Click to play)."; };
+            window.speechSynthesis.speak(utterance);
+        } catch (e) {
+            console.log("Speech synthesis prevented/blocked:", e);
+            audioStatus.innerText = "Click 'Play Audio Prompt' to listen.";
+        }
+    }
+
+    function loadQuestion() {
+        selectedOption = null;
+        answered = false;
+        document.getElementById('next-btn').disabled = true;
+        document.getElementById('feedback-text').innerText = "";
+        document.getElementById('next-btn').innerText = "Next Item";
+        
+        const q = quizData[currentQuestion];
+        document.getElementById('progress-indicator').innerText = `Item ${currentQuestion + 1} of ${quizData.length}`;
+        
+        const badge = document.getElementById('section-badge');
+        const audioContainer = document.getElementById('audio-container');
+        
+        if (q.type === "listening") {
+            badge.innerText = "Listening";
+            badge.style.background = "#374151";
+            badge.style.color = "#93c5fd";
+            audioContainer.style.display = "flex";
+            document.getElementById('question-text').innerText = "[Listening Prompt] " + q.q;
+            speakCurrentPrompt();
+        } else {
+            badge.innerText = "Reading";
+            badge.style.background = "#14532d";
+            badge.style.color = "#86efac";
+            audioContainer.style.display = "none";
+            document.getElementById('question-text').innerText = q.q;
+            try {
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            } catch(e) {}
+        }
+        
+        const container = document.getElementById('options-container');
+        container.innerHTML = "";
+        
+        q.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => selectOption(index, btn);
+            container.appendChild(btn);
+        });
+    }
+
+    function selectOption(index, btnElement) {
+        if (answered) return;
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        btnElement.classList.add('selected');
+        selectedOption = index;
+        document.getElementById('next-btn').disabled = false;
+    }
+
+    function handleAction() {
+        if (!answered) {
+            if (selectedOption === null) return;
+            answered = true;
+            const q = quizData[currentQuestion];
+            const buttons = document.querySelectorAll('.option-btn');
+            
+            buttons.forEach((b, idx) => {
+                b.style.pointerEvents = 'none';
+                if (idx === q.correct) {
+                    b.style.borderColor = 'var(--success-color)';
+                    b.style.background = 'rgba(34, 197, 94, 0.15)';
+                } else if (idx === selectedOption) {
+                    b.style.borderColor = 'var(--error-color)';
+                    b.style.background = 'rgba(239, 68, 68, 0.15)';
+                }
+            });
+
+            if (selectedOption === q.correct) {
+                score++;
+                document.getElementById('feedback-text').innerText = "Correct!";
+                document.getElementById('feedback-text').style.color = "var(--success-color)";
+            } else {
+                document.getElementById('feedback-text').innerText = "Incorrect.";
+                document.getElementById('feedback-text').style.color = "var(--error-color)";
+            }
+
+            currentQuestion++;
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = false;
+            
+            if (currentQuestion < quizData.length) {
+                nextBtn.innerText = "Next Item";
+            } else {
+                nextBtn.innerText = "View Results";
+            }
+        } else {
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+    }
+
+    function showResults() {
+        try {
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        } catch(e) {}
+        const app = document.getElementById('app');
+        app.innerHTML = `
+            <div class="results">
+                <h1>Examination Complete</h1>
+                <p>You have finished the full NALC Volume 1 (Units 1-15) 50-item evaluation.</p>
+                <div class="score">${score} / ${quizData.length} Correct</div>
+                <button class="btn" onclick="location.reload()">Restart Examination</button>
+            </div>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', loadQuestion);
+</script>
+
+</body>
+</html>
